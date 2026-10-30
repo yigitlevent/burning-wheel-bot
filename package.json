@@ -1,0 +1,39 @@
+{
+  "name": "burning-wheel-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot for Burning Wheel Gold Revised",
+  "type": "module",
+  "private": true,
+  "license": "MIT",
+  "scripts": {
+    "dev": "wrangler dev",
+    "test": "vitest run",
+    "typecheck": "tsc",
+    "deploy": "wrangler deploy",
+    "register": "node --env-file=.dev.vars src/register.ts",
+    "lint": "eslint . --ext ts,tsx,json --report-unused-disable-directives --cache",
+    "lintfix": "eslint . --ext ts,tsx --report-unused-disable-directives --fix --cache",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "discord-api-types": "^0.38.57",
+    "discord-interactions": "^4.4.0"
+  },
+  "devDependencies": {
+    "@stylistic/eslint-plugin": "^5.10.0",
+    "@types/node": "^26.6.6",
+    "eslint": "^9.7.0",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-json": "^5.0.0",
+    "husky": "^9.1.7",
+    "typescript-eslint": "^8.72.1",
+    "vitest": "^5.0.5",
+    "wrangler": "^4.156.0"
+  },
+  "allowScripts": {
+    "esbuild@0.28.2": true,
+    "workerd@1.20261023.1": true,
+    "unrs-resolver@1.12.2": true
+  }
+}

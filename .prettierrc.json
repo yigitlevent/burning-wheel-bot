@@ -1,0 +1,5 @@
+{
+  "SQLFlavourOverride": "pg",
+  "keywordCase": "upper",
+  "expressionWidth": 80
+}

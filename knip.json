@@ -1,0 +1,12 @@
+{
+  "$schema": "https://unpkg.com/knip@latest/schema.json",
+  "workspaces": {
+    ".": {
+      "entry": [],
+      "project": [
+        "src/**/*.{ts,tsx}"
+      ],
+      "ignore": []
+    }
+  }
+}
