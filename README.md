@@ -1,6 +1,8 @@
-# burning-wheel-bot
+# BWBot
 
 A Discord dice bot for Burning Wheel Gold Revised. It rolls a dice pool, counts successes by shade, compares them to an obstacle, and lets the roller spend Fate, Deeds or a call-on trait after the roll with buttons.
+
+![A roll in Discord showing the result, coloured dice and spend buttons](screenshot.png)
 
 ## Using the bot
 

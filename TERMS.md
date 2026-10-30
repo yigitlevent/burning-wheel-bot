@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-30
 
-These terms apply to Burning Wheel Dice ("the bot"), a Discord bot that rolls dice for the Burning Wheel tabletop roleplaying game. By using the bot, you agree to them.
+These terms apply to BWBot ("the bot"), a Discord bot that rolls dice for the Burning Wheel tabletop roleplaying game. By using the bot, you agree to them.
 
 ## Using the bot
 

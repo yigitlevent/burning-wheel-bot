@@ -2,7 +2,7 @@
 
 Last updated: 2026-10-30
 
-This policy explains how Burning Wheel Dice ("the bot"), a Discord dice-rolling bot, handles your data.
+This policy explains how BWBot ("the bot"), a Discord dice-rolling bot, handles your data.
 
 ## What the bot receives
 
