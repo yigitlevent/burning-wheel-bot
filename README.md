@@ -2,7 +2,7 @@
 
 A Discord dice bot for Burning Wheel Gold Revised. It rolls a dice pool, counts successes by shade, compares them to an obstacle, and lets the roller spend Fate, Deeds or a call-on trait after the roll with buttons.
 
-![A roll in Discord showing the result, coloured dice and spend buttons](screenshot.png)
+**[Add BWBot to your server](https://discord.com/oauth2/authorize?client_id=1565666581235638372)**
 
 ## Using the bot
 
@@ -19,11 +19,7 @@ A Discord dice bot for Burning Wheel Gold Revised. It rolls a dice pool, counts 
 
 Example result:
 
-```txt
-✔ PASS (+0) (Routine test)
-5D Grey vs Ob 3 → [⚄, ⚁, ⚃, ⚁, ⚂] = 3 successes
-[Fate: explode 6s (disabled)] [Deeds: reroll failures] [Call-on: reroll 1 failure]
-```
+![A roll in Discord showing the result, coloured dice and spend buttons](screenshot.png)
 
 Successful dice are green and failed dice are red on desktop. An exploded 6 shows as `⚅!`. The test label comes from the book's advancement table, which stops at 18D, so larger pools have no label.
 
