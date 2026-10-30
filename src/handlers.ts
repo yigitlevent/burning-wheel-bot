@@ -100,7 +100,7 @@ export function HandleButton(interaction: APIMessageComponentButtonInteraction, 
   return {
     type: InteractionResponseType.UpdateMessage,
     data: {
-      content: [ResultLine(next), ...earlierSpends, spent].join("\n"),
+      content: ResultLine(next, [...earlierSpends, spent]),
       components: Buttons(next),
       allowed_mentions: { parse: [] }
     }

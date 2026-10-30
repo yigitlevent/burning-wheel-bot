@@ -19,19 +19,19 @@ function AnsiBlock(text: string): string {
   return `\`\`\`ansi\n${text}\n\`\`\``;
 }
 
-export function ResultLine(state: RollState): string {
+export function ResultLine(state: RollState, spends: string[] = []): string {
   const { dice, ob, open, pool, shade } = state;
   const successes = CountSuccesses(dice, shade);
   const faces = dice.toSorted((a, b) => b.value - a.value).map(die => ColoredDie(die, shade)).join(", ");
   const noun = successes === 1 ? "success" : "successes";
   const opposition = ob > 0 ? ` vs Ob ${ob}` : "";
   const line = `${pool}D ${ShadeNames[shade]}${open ? " open-ended" : ""}${opposition} → [${faces}] = ${successes} ${noun}`;
-  if (ob === 0) return AnsiBlock(line);
+  if (ob === 0) return AnsiBlock([line, ...spends].join("\n"));
 
   const margin = successes - ob;
   const outcome = margin >= 0 ? `✔ PASS (+${margin})` : `✖ FAIL (${margin})`;
   const difficulty = TestDifficulty(pool, ob);
-  return AnsiBlock(`${outcome}${difficulty ? ` (${difficulty} test)` : ""}\n${line}`);
+  return AnsiBlock([`${outcome}${difficulty ? ` (${difficulty} test)` : ""}`, line, ...spends].join("\n"));
 }
 
 function Button(action: Action, label: string, disabled: boolean, state: RollState): APIButtonComponentWithCustomId {

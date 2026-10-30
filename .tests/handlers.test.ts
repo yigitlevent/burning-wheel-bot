@@ -161,6 +161,11 @@ describe('handleButton', () => {
     ]);
   });
 
+  it('keeps spend lines inside the ansi block', () => {
+    const raw = rawContentOf(HandleButton(click('fate', closed), queuedRng(4)));
+    expect(raw).toMatch(/^```ansi\n[\s\S]*\nSpent Fate: exploded 6s\n```$/);
+  });
+
   it('accepts the roller in a DM', () => {
     const response = HandleButton(click('callon', closed, inDm(ROLLER)), queuedRng(5));
     expect(response.type).toBe(InteractionResponseType.UpdateMessage);
