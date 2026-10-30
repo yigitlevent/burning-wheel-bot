@@ -21,7 +21,7 @@ function row(rollState: RollState) {
 
 describe('resultLine', () => {
   it('reports a pass with its margin', () => {
-    expect(plain(ResultLine(state))).toBe('✔ PASS (+0) (Routine test)\n5D Grey vs Ob 3 → [⚅, ⚃, ⚂, ⚁, ⚀] = 3 successes');
+    expect(plain(ResultLine(state))).toBe('✔ PASS (+0) (Routine test)\n5D Grey vs Ob 3 → [6, 4, 3, 2, 1] = 3 successes');
   });
 
   it('reports a fail with its margin', () => {
@@ -29,20 +29,20 @@ describe('resultLine', () => {
   });
 
   it('just reports successes at Ob 0', () => {
-    expect(plain(ResultLine({ ...state, ob: 0 }))).toBe('5D Grey → [⚅, ⚃, ⚂, ⚁, ⚀] = 3 successes');
+    expect(plain(ResultLine({ ...state, ob: 0 }))).toBe('5D Grey → [6, 4, 3, 2, 1] = 3 successes');
   });
 
   it('marks open rolls and exploded dice', () => {
     const line = plain(ResultLine({ ...state, open: true, dice: [{ value: 6, exploded: true }, ...dice(1)] }));
     expect(line).toContain('5D Grey open-ended');
-    expect(line).toContain('[⚅!, ⚀] = 1 success');
+    expect(line).toContain('[6!, 1] = 1 success');
   });
 });
 
 describe('dice order', () => {
   it('shows dice high to low without changing the stored order', () => {
     const rolled = { ...state, dice: dice(2, 6, 1, 4) };
-    expect(plain(ResultLine(rolled))).toContain('[⚅, ⚃, ⚁, ⚀]');
+    expect(plain(ResultLine(rolled))).toContain('[6, 4, 2, 1]');
     expect(rolled.dice).toEqual(dice(2, 6, 1, 4));
     expect(Buttons(rolled)[0]?.components[0]?.custom_id).toMatch(/:2614$/);
   });
@@ -55,7 +55,7 @@ describe('dice colours', () => {
 
   it('colours successes green and failures red by shade', () => {
     const line = ResultLine({ ...state, dice: dice(3, 2) });
-    expect(line).toContain('\u001b[32m⚂\u001b[0m, \u001b[31m⚁\u001b[0m');
+    expect(line).toContain('\u001b[32m3\u001b[0m, \u001b[31m2\u001b[0m');
   });
 });
 

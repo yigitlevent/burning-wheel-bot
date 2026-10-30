@@ -88,7 +88,7 @@ describe('handleRoll', () => {
       queuedRng(4, 1),
     );
     expect(response.type).toBe(InteractionResponseType.ChannelMessageWithSource);
-    expect(contentOf(response)).toBe('2D Black → [⚃, ⚀] = 1 success');
+    expect(contentOf(response)).toBe('2D Black → [4, 1] = 1 success');
   });
 
   it('reads every option', () => {
@@ -102,7 +102,7 @@ describe('handleRoll', () => {
       queuedRng(6, 2, 1),
     );
     expect(contentOf(response)).toBe(
-      '✔ PASS (+0) (Difficult test)\n2D White open-ended vs Ob 2 → [⚅!, ⚁, ⚀] = 2 successes',
+      '✔ PASS (+0) (Difficult test)\n2D White open-ended vs Ob 2 → [6!, 2, 1] = 2 successes',
     );
   });
 
@@ -122,23 +122,23 @@ describe('handleButton', () => {
     const response = HandleButton(click('fate', closed), queuedRng(4));
     expect(response.type).toBe(InteractionResponseType.UpdateMessage);
     expect(contentOf(response)).toBe(
-      '✔ PASS (+0) (Routine test)\n3D Black vs Ob 2 → [⚅!, ⚃, ⚂, ⚀] = 2 successes\nSpent Fate: exploded 6s',
+      '✔ PASS (+0) (Routine test)\n3D Black vs Ob 2 → [6!, 4, 3, 1] = 2 successes\nSpent Fate: exploded 6s',
     );
   });
 
   it('rerolls one failure when Fate is spent on an open roll', () => {
     const response = HandleButton(click('fate', exploded(true)), queuedRng(5));
-    expect(contentOf(response)).toContain('[⚅!, ⚄, ⚀]');
+    expect(contentOf(response)).toContain('[6!, 5, 1]');
     expect(contentOf(response)).toContain('Spent Fate: rerolled 1 failure');
   });
 
   it('does not explode rerolled 6s on a closed roll', () => {
-    expect(contentOf(HandleButton(click('deeds', closed), queuedRng(6, 6)))).toContain('[⚅, ⚅, ⚅]');
+    expect(contentOf(HandleButton(click('deeds', closed), queuedRng(6, 6)))).toContain('[6, 6, 6]');
   });
 
   it('explodes rerolled 6s after Fate has opened the roll', () => {
     const response = HandleButton(click('deeds', exploded(false)), queuedRng(6, 1, 2));
-    expect(contentOf(response)).toContain('[⚅!, ⚅!, ⚁, ⚀]');
+    expect(contentOf(response)).toContain('[6!, 6!, 2, 1]');
   });
 
   it('keeps every spend line through a full sequence', () => {

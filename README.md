@@ -21,7 +21,7 @@ Example result:
 
 ![A roll in Discord showing the result, coloured dice and spend buttons](screenshot.png)
 
-Successful dice are green and failed dice are red on desktop. An exploded 6 shows as `⚅!`. The test label comes from the book's advancement table, which stops at 18D, so larger pools have no label.
+Successful dice are green and failed dice are red on desktop. An exploded 6 shows as `6!`. The test label comes from the book's advancement table, which stops at 18D, so larger pools have no label.
 
 ### Spending after the roll
 

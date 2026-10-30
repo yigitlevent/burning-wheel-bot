@@ -10,23 +10,9 @@ const AnsiGreen = "\u001b[32m";
 const AnsiRed = "\u001b[31m";
 const AnsiReset = "\u001b[0m";
 
-function GetDieValue(v: number, exploded: boolean): string {
-  switch (v) {
-    case 1: return "⚀";
-    case 2: return "⚁";
-    case 3: return "⚂";
-    case 4: return "⚃";
-    case 5: return "⚄";
-    case 6:
-      if (exploded) return "⚅!";
-      return "⚅";
-    default: return "<?>";
-  }
-}
-
 function ColoredDie(die: Die, shade: Shade): string {
   const color = die.value >= Threshold(shade) ? AnsiGreen : AnsiRed;
-  return `${color}${GetDieValue(die.value, die.exploded)}${AnsiReset}`;
+  return `${color}${die.exploded ? "6!" : die.value}${AnsiReset}`;
 }
 
 function AnsiBlock(text: string): string {
