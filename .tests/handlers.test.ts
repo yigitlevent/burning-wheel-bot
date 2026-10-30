@@ -8,7 +8,7 @@ import {
 } from 'discord-api-types/v10';
 import { describe, expect, it } from 'vitest';
 import { HandleButton, HandleRoll } from '../src/handlers.ts';
-import { dice, queuedRng } from './test-helpers.ts';
+import { dice, plain, queuedRng } from './test-helpers.ts';
 import { DecodeState, EncodeState, type Action, type RollState } from '../src/state.ts';
 
 const ROLLER = '111';
@@ -37,8 +37,12 @@ function click(
   } as unknown as APIMessageComponentButtonInteraction;
 }
 
-function contentOf(response: APIInteractionResponse): string {
+function rawContentOf(response: APIInteractionResponse): string {
   return (response as { data: { content: string } }).data.content;
+}
+
+function contentOf(response: APIInteractionResponse): string {
+  return plain(rawContentOf(response));
 }
 
 function customIds(response: APIInteractionResponse): string[] {
@@ -84,7 +88,7 @@ describe('handleRoll', () => {
       queuedRng(4, 1),
     );
     expect(response.type).toBe(InteractionResponseType.ChannelMessageWithSource);
-    expect(contentOf(response)).toBe('🎲 2D Black → [4, 1] = 1 success');
+    expect(contentOf(response)).toBe('2D Black → [⚃, ⚀] = 1 success');
   });
 
   it('reads every option', () => {
@@ -98,7 +102,7 @@ describe('handleRoll', () => {
       queuedRng(6, 2, 1),
     );
     expect(contentOf(response)).toBe(
-      '🎲 2D White open-ended vs Ob 2 → [6!, 2, 1] = 2 successes ✅ PASS (+0) (Difficult test)',
+      '✔ PASS (+0) (Difficult test)\n2D White open-ended vs Ob 2 → [⚅!, ⚁, ⚀] = 2 successes',
     );
   });
 
@@ -118,23 +122,23 @@ describe('handleButton', () => {
     const response = HandleButton(click('fate', closed), queuedRng(4));
     expect(response.type).toBe(InteractionResponseType.UpdateMessage);
     expect(contentOf(response)).toBe(
-      '🎲 3D Black vs Ob 2 → [6!, 3, 1, 4] = 2 successes ✅ PASS (+0) (Routine test)\nSpent Fate: exploded 6s',
+      '✔ PASS (+0) (Routine test)\n3D Black vs Ob 2 → [⚅!, ⚃, ⚂, ⚀] = 2 successes\nSpent Fate: exploded 6s',
     );
   });
 
   it('rerolls one failure when Fate is spent on an open roll', () => {
     const response = HandleButton(click('fate', exploded(true)), queuedRng(5));
-    expect(contentOf(response)).toContain('[6!, 5, 1]');
+    expect(contentOf(response)).toContain('[⚅!, ⚄, ⚀]');
     expect(contentOf(response)).toContain('Spent Fate: rerolled 1 failure');
   });
 
   it('does not explode rerolled 6s on a closed roll', () => {
-    expect(contentOf(HandleButton(click('deeds', closed), queuedRng(6, 6)))).toContain('[6, 6, 6]');
+    expect(contentOf(HandleButton(click('deeds', closed), queuedRng(6, 6)))).toContain('[⚅, ⚅, ⚅]');
   });
 
   it('explodes rerolled 6s after Fate has opened the roll', () => {
     const response = HandleButton(click('deeds', exploded(false)), queuedRng(6, 1, 2));
-    expect(contentOf(response)).toContain('[6!, 6!, 1, 2]');
+    expect(contentOf(response)).toContain('[⚅!, ⚅!, ⚁, ⚀]');
   });
 
   it('keeps every spend line through a full sequence', () => {
@@ -146,11 +150,11 @@ describe('handleButton', () => {
       ['callon', queuedRng(5)],
     ] as const) {
       const response = HandleButton(click(action, state, inGuild(ROLLER), content), rng);
-      content = contentOf(response);
+      content = rawContentOf(response);
       const [nextId] = customIds(response);
       if (nextId) state = { ...state, ...decodeNext(nextId) };
     }
-    expect(content.split('\n').slice(1)).toEqual([
+    expect(plain(content).split('\n').slice(2)).toEqual([
       'Spent Fate: exploded 6s',
       'Spent Deeds: rerolled all failures',
       'Spent Call-on: rerolled 1 failure',

@@ -11,6 +11,7 @@
     "typecheck": "tsc",
     "deploy": "wrangler deploy",
     "register": "node --env-file=.dev.vars src/register.ts",
+    "preview": "node .tests/preview.ts",
     "lint": "eslint . --ext ts,tsx,json --report-unused-disable-directives --cache",
     "lintfix": "eslint . --ext ts,tsx --report-unused-disable-directives --fix --cache",
     "prepare": "husky"

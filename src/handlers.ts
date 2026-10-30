@@ -91,13 +91,12 @@ export function HandleButton(interaction: APIMessageComponentButtonInteraction, 
   if (!decoded) return Ephemeral("This roll could not be read.");
 
   const { action, state } = decoded;
-  if (ActorId(interaction) !== state.userId) {
-    return Ephemeral("Only the roller can spend on this roll.");
-  }
+  if (ActorId(interaction) !== state.userId) return Ephemeral("Only the roller can spend on this roll.");
   if (state[action]) return Ephemeral("That was already spent on this roll.");
 
   const { next, spent } = Spend(action, state, rng);
-  const earlierSpends = interaction.message.content.split("\n").slice(1);
+  const earlierSpends = interaction.message.content.split("\n").filter(line => line.startsWith("Spent "));
+
   return {
     type: InteractionResponseType.UpdateMessage,
     data: {

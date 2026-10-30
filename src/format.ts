@@ -1,25 +1,51 @@
 import { ButtonStyle, ComponentType, type APIActionRowComponent, type APIButtonComponentWithCustomId } from "discord-api-types/v10";
 
 import { TestDifficulty } from "./advancement.ts";
-import { CountSuccesses, FailedIndexes, type Shade } from "./dice.ts";
+import { CountSuccesses, FailedIndexes, Threshold, type Die, type Shade } from "./dice.ts";
 import { EncodeState, MaxCustomIdLength, type Action, type RollState } from "./state.ts";
 
 
 const ShadeNames: Record<Shade, string> = { B: "Black", G: "Grey", W: "White" };
+const AnsiGreen = "\u001b[32m";
+const AnsiRed = "\u001b[31m";
+const AnsiReset = "\u001b[0m";
+
+function GetDieValue(v: number, exploded: boolean): string {
+  switch (v) {
+    case 1: return "⚀";
+    case 2: return "⚁";
+    case 3: return "⚂";
+    case 4: return "⚃";
+    case 5: return "⚄";
+    case 6:
+      if (exploded) return "⚅!";
+      return "⚅";
+    default: return "<?>";
+  }
+}
+
+function ColoredDie(die: Die, shade: Shade): string {
+  const color = die.value >= Threshold(shade) ? AnsiGreen : AnsiRed;
+  return `${color}${GetDieValue(die.value, die.exploded)}${AnsiReset}`;
+}
+
+function AnsiBlock(text: string): string {
+  return `\`\`\`ansi\n${text}\n\`\`\``;
+}
 
 export function ResultLine(state: RollState): string {
   const { dice, ob, open, pool, shade } = state;
   const successes = CountSuccesses(dice, shade);
-  const faces = dice.map(die => (die.exploded ? "6!" : String(die.value))).join(", ");
+  const faces = dice.toSorted((a, b) => b.value - a.value).map(die => ColoredDie(die, shade)).join(", ");
   const noun = successes === 1 ? "success" : "successes";
   const opposition = ob > 0 ? ` vs Ob ${ob}` : "";
-  const line = `🎲 ${pool}D ${ShadeNames[shade]}${open ? " open-ended" : ""}${opposition} → [${faces}] = ${successes} ${noun}`;
-  if (ob === 0) return line;
+  const line = `${pool}D ${ShadeNames[shade]}${open ? " open-ended" : ""}${opposition} → [${faces}] = ${successes} ${noun}`;
+  if (ob === 0) return AnsiBlock(line);
 
   const margin = successes - ob;
-  const outcome = margin >= 0 ? `✅ PASS (+${margin})` : `❌ FAIL (${margin})`;
+  const outcome = margin >= 0 ? `✔ PASS (+${margin})` : `✖ FAIL (${margin})`;
   const difficulty = TestDifficulty(pool, ob);
-  return `${line} ${outcome}${difficulty ? ` (${difficulty} test)` : ""}`;
+  return AnsiBlock(`${outcome}${difficulty ? ` (${difficulty} test)` : ""}\n${line}`);
 }
 
 function Button(action: Action, label: string, disabled: boolean, state: RollState): APIButtonComponentWithCustomId {

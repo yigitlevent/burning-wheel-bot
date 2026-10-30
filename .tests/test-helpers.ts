@@ -13,3 +13,8 @@ export function queuedRng(...values: number[]): Rng {
 export function dice(...values: number[]): Die[] {
   return values.map((value) => ({ value, exploded: false }));
 }
+
+/** Removes the code fence and colour codes, leaving the text people read. */
+export function plain(content: string): string {
+  return content.replace('```ansi\n', '').replace('\n```', '').replace(/\u001b\[\d+m/g, '');
+}

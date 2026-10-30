@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { Buttons, ResultLine } from '../src/format.ts';
 import type { RollState } from '../src/state.ts';
-import { dice } from './test-helpers.ts';
+import { dice, plain } from './test-helpers.ts';
 
 const state: RollState = {
   userId: '1',
@@ -21,21 +21,41 @@ function row(rollState: RollState) {
 
 describe('resultLine', () => {
   it('reports a pass with its margin', () => {
-    expect(ResultLine(state)).toBe('🎲 5D Grey vs Ob 3 → [6, 4, 3, 2, 1] = 3 successes ✅ PASS (+0) (Routine test)');
+    expect(plain(ResultLine(state))).toBe('✔ PASS (+0) (Routine test)\n5D Grey vs Ob 3 → [⚅, ⚃, ⚂, ⚁, ⚀] = 3 successes');
   });
 
   it('reports a fail with its margin', () => {
-    expect(ResultLine({ ...state, ob: 5 })).toContain('❌ FAIL (-2)');
+    expect(ResultLine({ ...state, ob: 5 })).toContain('✖ FAIL (-2)');
   });
 
   it('just reports successes at Ob 0', () => {
-    expect(ResultLine({ ...state, ob: 0 })).toBe('🎲 5D Grey → [6, 4, 3, 2, 1] = 3 successes');
+    expect(plain(ResultLine({ ...state, ob: 0 }))).toBe('5D Grey → [⚅, ⚃, ⚂, ⚁, ⚀] = 3 successes');
   });
 
   it('marks open rolls and exploded dice', () => {
-    const line = ResultLine({ ...state, open: true, dice: [{ value: 6, exploded: true }, ...dice(1)] });
+    const line = plain(ResultLine({ ...state, open: true, dice: [{ value: 6, exploded: true }, ...dice(1)] }));
     expect(line).toContain('5D Grey open-ended');
-    expect(line).toContain('[6!, 1] = 1 success ');
+    expect(line).toContain('[⚅!, ⚀] = 1 success');
+  });
+});
+
+describe('dice order', () => {
+  it('shows dice high to low without changing the stored order', () => {
+    const rolled = { ...state, dice: dice(2, 6, 1, 4) };
+    expect(plain(ResultLine(rolled))).toContain('[⚅, ⚃, ⚁, ⚀]');
+    expect(rolled.dice).toEqual(dice(2, 6, 1, 4));
+    expect(Buttons(rolled)[0]?.components[0]?.custom_id).toMatch(/:2614$/);
+  });
+});
+
+describe('dice colours', () => {
+  it('wraps the result in an ansi block', () => {
+    expect(ResultLine(state)).toMatch(/^```ansi\n[\s\S]*\n```$/);
+  });
+
+  it('colours successes green and failures red by shade', () => {
+    const line = ResultLine({ ...state, dice: dice(3, 2) });
+    expect(line).toContain('\u001b[32m⚂\u001b[0m, \u001b[31m⚁\u001b[0m');
   });
 });
 

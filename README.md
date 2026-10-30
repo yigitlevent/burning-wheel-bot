@@ -18,10 +18,12 @@ A Discord dice bot for Burning Wheel Gold Revised. It rolls a dice pool, counts 
 Example result:
 
 ```txt
-🎲 5D Grey vs Ob 3 → [6, 4, 3, 2, 1] = 3 successes ✅ PASS (+0) (Routine test)
+✔ PASS (+0) (Routine test)
+5D Grey vs Ob 3 → [⚄, ⚁, ⚃, ⚁, ⚂] = 3 successes
+[Fate: explode 6s (disabled)] [Deeds: reroll failures] [Call-on: reroll 1 failure]
 ```
 
-An exploded 6 shows as `6!`. The test label comes from the book's advancement table, which stops at 18D, so larger pools have no label.
+Successful dice are green and failed dice are red on desktop. An exploded 6 shows as `⚅!`. The test label comes from the book's advancement table, which stops at 18D, so larger pools have no label.
 
 ### Spending after the roll
 
@@ -59,6 +61,7 @@ Your copy needs its own Discord app and its own Terms of Service and Privacy Pol
 | `npm test` | Runs the tests in `.tests/` |
 | `npm run typecheck` | Checks types |
 | `npm run lint` | Runs ESLint |
+| `npm run preview -- 8 4 W true` | Prints a sample roll: dice, Ob, shade, open-ended |
 | `npm run dev` | Runs the Worker locally |
 | `npm run deploy` | Deploys to Cloudflare |
 | `npm run register` | Registers `/roll` with Discord |
