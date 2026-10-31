@@ -66,8 +66,8 @@ describe("Beginner's Luck", () => {
     expect(line).toContain('(Routine or Difficult test, counts toward the skill or the root stat)');
   });
 
-  it('has no note past the advancement table', () => {
-    expect(ResultLine({ ...beginner, pool: 19 })).not.toContain('counts toward');
+  it('keeps the note on pools past 18D', () => {
+    expect(ResultLine({ ...beginner, pool: 19 })).toContain('counts toward learning the skill');
   });
 
   it('stays a graduated test at Ob 0', () => {

@@ -25,7 +25,7 @@ Example result:
 
 ![A roll in Discord showing the result, dice and spend buttons](screenshot.png)
 
-Successful dice are bold. An exploded 6 shows as `6!`. The test label comes from the book's advancement table, which stops at 18D, so larger pools have no label.
+Successful dice are bold. An exploded 6 shows as `6!`. The test label comes from the book's advancement table. That table stops at 18D, so larger pools continue its pattern from 7D up: Routine to Ob `dice - 3`, Difficult to Ob `dice`.
 
 ### Spending after the roll
 

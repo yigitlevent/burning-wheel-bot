@@ -36,8 +36,15 @@ describe('testDifficulty', () => {
     expect(TestDifficulty(1, 2)).toBe('Challenging');
   });
 
-  it('has no label at Ob 0 or past the table', () => {
+  it('has no label at Ob 0', () => {
     expect(TestDifficulty(5, 0)).toBeNull();
-    expect(TestDifficulty(19, 3)).toBeNull();
+    expect(TestDifficulty(19, 0)).toBeNull();
+  });
+
+  it('keeps the pattern past 18D', () => {
+    expect(TestDifficulty(30, 27)).toBe('Routine');
+    expect(TestDifficulty(30, 28)).toBe('Difficult');
+    expect(TestDifficulty(30, 30)).toBe('Difficult');
+    expect(TestDifficulty(30, 31)).toBe('Challenging');
   });
 });
