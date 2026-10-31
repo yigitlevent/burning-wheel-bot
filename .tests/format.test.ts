@@ -48,14 +48,32 @@ describe('dice order', () => {
   });
 });
 
-describe('dice colours', () => {
-  it('wraps the result in an ansi block', () => {
-    expect(ResultLine(state)).toMatch(/^```ansi\n[\s\S]*\n```$/);
+describe('dice faces', () => {
+  const emojis = ['<:d1:10000000000000001>', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣'];
+
+  it('has no code block or colour codes', () => {
+    expect(ResultLine(state)).not.toMatch(/```|\u001b/);
   });
 
-  it('colours successes green and failures red by shade', () => {
-    const line = ResultLine({ ...state, dice: dice(3, 2) });
-    expect(line).toContain('\u001b[32m3\u001b[0m, \u001b[31m2\u001b[0m');
+  it('bolds successes by shade', () => {
+    expect(ResultLine({ ...state, dice: dice(3, 2) })).toContain('[**3**, 2]');
+  });
+
+  it('shows the emoji for each face, high to low', () => {
+    const line = ResultLine({ ...state, dice: dice(1, 6, 2) }, [], emojis);
+    expect(line).toContain('[6️⃣ 2️⃣ <:d1:10000000000000001>]');
+  });
+
+  it('marks exploded dice on emojis', () => {
+    const line = ResultLine({ ...state, dice: [{ value: 6, exploded: true }] }, [], emojis);
+    expect(line).toContain('[6️⃣!]');
+  });
+
+  it('falls back to numbers when emojis would pass the message limit', () => {
+    const long = Array<string>(6).fill(`<:${'d'.repeat(32)}:10000000000000001>`);
+    const line = ResultLine({ ...state, dice: dice(...Array<number>(60).fill(1)) }, [], long);
+    expect(line.length).toBeLessThanOrEqual(2000);
+    expect(line).toContain('[1, 1,');
   });
 });
 

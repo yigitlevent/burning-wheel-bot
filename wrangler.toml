@@ -2,5 +2,9 @@ name = "burning-wheel-bot"
 main = "src/server.ts"
 compatibility_date = "2026-10-30"
 
+[[kv_namespaces]]
+binding = "SETTINGS"
+id = "8e6f8ff1e9fa4e938bfa2468cb6f09d7"
+
 # [secrets]
 # DISCORD_PUBLIC_KEY

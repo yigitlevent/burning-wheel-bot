@@ -2,6 +2,7 @@ import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags, ty
 
 import { Explode, RerollFailures, RerollOne, RollPool, type Rng, type Shade } from "./dice.ts";
 import { Buttons, ResultLine } from "./format.ts";
+import { DeleteSettings, ParseDiceEmojis, SaveSettings, type GuildSettings, type SettingsStore } from "./settings.ts";
 import { DecodeState, type Action, type RollState } from "./state.ts";
 
 
@@ -31,7 +32,7 @@ function Option(options: APIApplicationCommandInteractionDataOption<InteractionT
   }
 }
 
-export function HandleRoll(interaction: APIChatInputApplicationCommandInteraction, rng: Rng): APIInteractionResponse {
+export function HandleRoll(interaction: APIChatInputApplicationCommandInteraction, rng: Rng, settings: GuildSettings = {}): APIInteractionResponse {
   const options = interaction.data.options ?? [];
   const pool = Option(options, "dice") as number;
   const open = (Option(options, "open") as boolean | undefined) ?? false;
@@ -51,7 +52,7 @@ export function HandleRoll(interaction: APIChatInputApplicationCommandInteractio
   return {
     type: InteractionResponseType.ChannelMessageWithSource,
     data: {
-      content: ResultLine(state),
+      content: ResultLine(state, [], settings.diceEmojis),
       components: Buttons(state),
       allowed_mentions: { parse: [] }
     }
@@ -86,7 +87,7 @@ function Spend(action: Action, state: RollState, rng: Rng): { next: RollState; s
   }
 }
 
-export function HandleButton(interaction: APIMessageComponentButtonInteraction, rng: Rng): APIInteractionResponse {
+export function HandleButton(interaction: APIMessageComponentButtonInteraction, rng: Rng, settings: GuildSettings = {}): APIInteractionResponse {
   const decoded = DecodeState(interaction.data.custom_id);
   if (!decoded) return Ephemeral("This roll could not be read.");
 
@@ -100,9 +101,26 @@ export function HandleButton(interaction: APIMessageComponentButtonInteraction, 
   return {
     type: InteractionResponseType.UpdateMessage,
     data: {
-      content: ResultLine(next, [...earlierSpends, spent]),
+      content: ResultLine(next, [...earlierSpends, spent], settings.diceEmojis),
       components: Buttons(next),
       allowed_mentions: { parse: [] }
     }
   };
+}
+
+export async function HandleRollSettings(interaction: APIChatInputApplicationCommandInteraction, store: SettingsStore): Promise<APIInteractionResponse> {
+  const guildId = interaction.guild_id;
+  const subcommand = interaction.data.options?.[0];
+  if (!guildId || subcommand?.type !== ApplicationCommandOptionType.Subcommand) return Ephemeral("This command only works in a server.");
+
+  if (subcommand.name === "delete") {
+    await DeleteSettings(store, guildId);
+    return Ephemeral("Settings deleted. Rolls go back to numbers within a minute.");
+  }
+
+  const diceEmojis = ParseDiceEmojis(String(Option(subcommand.options ?? [], "emojis")));
+  if (!diceEmojis) return Ephemeral("Send exactly six emojis, for faces 1 to 6, separated by spaces.");
+
+  await SaveSettings(store, guildId, { diceEmojis });
+  return Ephemeral(`Dice emojis saved: ${diceEmojis.join(" ")}\nRolls start using them within a minute.`);
 }

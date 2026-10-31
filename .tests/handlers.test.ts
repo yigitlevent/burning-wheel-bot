@@ -7,10 +7,12 @@ import {
   type APIMessageComponentButtonInteraction,
 } from 'discord-api-types/v10';
 import { describe, expect, it } from 'vitest';
-import { HandleButton, HandleRoll } from '../src/handlers.ts';
-import { dice, plain, queuedRng } from './test-helpers.ts';
+import { HandleButton, HandleRoll, HandleRollSettings } from '../src/handlers.ts';
+import { LoadSettings, SaveSettings } from '../src/settings.ts';
+import { dice, memoryStore, plain, queuedRng } from './test-helpers.ts';
 import { DecodeState, EncodeState, type Action, type RollState } from '../src/state.ts';
 
+const EMOJIS = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣'];
 const ROLLER = '111';
 const inGuild = (id: string) => ({ member: { user: { id } } });
 const inDm = (id: string) => ({ user: { id } });
@@ -115,6 +117,61 @@ describe('handleRoll', () => {
     } as unknown as APIChatInputApplicationCommandInteraction;
     expect(customIds(HandleRoll(interaction, queuedRng(1)))[0]).toContain(`:${ROLLER}:`);
   });
+
+  it('shows the server emojis', () => {
+    const response = HandleRoll(
+      rollInteraction([{ name: 'dice', type: ApplicationCommandOptionType.Integer, value: 2 }]),
+      queuedRng(4, 1),
+      { diceEmojis: EMOJIS },
+    );
+    expect(contentOf(response)).toBe('2D Black → [4️⃣ 1️⃣] = 1 success');
+  });
+});
+
+describe('handleRollSettings', () => {
+  const GUILD = '999';
+
+  function settingsInteraction(
+    subcommand: string,
+    emojis?: string,
+    guildId: string | undefined = GUILD,
+  ) {
+    const options =
+      emojis === undefined
+        ? undefined
+        : [{ name: 'emojis', type: ApplicationCommandOptionType.String, value: emojis }];
+    return {
+      guild_id: guildId,
+      data: {
+        options: [{ name: subcommand, type: ApplicationCommandOptionType.Subcommand, options }],
+      },
+    } as unknown as APIChatInputApplicationCommandInteraction;
+  }
+
+  it('saves six emojis for the server', async () => {
+    const store = memoryStore();
+    const response = await HandleRollSettings(
+      settingsInteraction('dice-emojis', EMOJIS.join(' ')),
+      store,
+    );
+    expect(isEphemeral(response)).toBe(true);
+    expect(await LoadSettings(store, GUILD)).toEqual({ diceEmojis: EMOJIS });
+  });
+
+  it('rejects anything other than six emojis without saving', async () => {
+    const store = memoryStore();
+    const response = await HandleRollSettings(settingsInteraction('dice-emojis', '1️⃣ 2️⃣'), store);
+    expect(isEphemeral(response)).toBe(true);
+    expect(store.values.size).toBe(0);
+  });
+
+  it('deletes the server settings', async () => {
+    const store = memoryStore();
+    await SaveSettings(store, GUILD, { diceEmojis: EMOJIS });
+    const response = await HandleRollSettings(settingsInteraction('delete'), store);
+    expect(isEphemeral(response)).toBe(true);
+    expect(store.values.size).toBe(0);
+  });
 });
 
 describe('handleButton', () => {
@@ -161,9 +218,18 @@ describe('handleButton', () => {
     ]);
   });
 
-  it('keeps spend lines inside the ansi block', () => {
-    const raw = rawContentOf(HandleButton(click('fate', closed), queuedRng(4)));
-    expect(raw).toMatch(/^```ansi\n[\s\S]*\nSpent Fate: exploded 6s\n```$/);
+  it('keeps earlier spends from a message with an ansi block', () => {
+    const old = '```ansi\nresult\nSpent Deeds: rerolled all failures\n```';
+    const response = HandleButton(click('fate', closed, inGuild(ROLLER), old), queuedRng(4));
+    expect(contentOf(response).split('\n').slice(2)).toEqual([
+      'Spent Deeds: rerolled all failures',
+      'Spent Fate: exploded 6s',
+    ]);
+  });
+
+  it('shows the server emojis after a spend', () => {
+    const response = HandleButton(click('callon', closed), queuedRng(5), { diceEmojis: EMOJIS });
+    expect(contentOf(response)).toContain('[6️⃣ 5️⃣ 1️⃣]');
   });
 
   it('accepts the roller in a DM', () => {

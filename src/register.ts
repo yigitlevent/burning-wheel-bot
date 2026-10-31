@@ -1,6 +1,6 @@
 import process from "node:process";
 
-import { RollCommand } from "./commands.ts";
+import { RollCommand, RollSettingsCommand } from "./commands.ts";
 
 
 const DiscordToken = process.env.DISCORD_TOKEN;
@@ -19,7 +19,7 @@ const Response = await fetch(`https://discord.com/api/v10/applications/${Applica
     "Authorization": `Bot ${DiscordToken}`
   },
   method: "PUT",
-  body: JSON.stringify([RollCommand])
+  body: JSON.stringify([RollCommand, RollSettingsCommand])
 });
 
 if (!Response.ok) {

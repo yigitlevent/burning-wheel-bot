@@ -1,12 +1,13 @@
 import { ApplicationCommandType, ComponentType, InteractionResponseType, InteractionType, type APIChatInputApplicationCommandInteraction, type APIInteraction, type APIMessageComponentButtonInteraction } from "discord-api-types/v10";
 import { verifyKey } from "discord-interactions";
 
-import { RollCommand } from "./commands.ts";
+import { RollCommand, RollSettingsCommand } from "./commands.ts";
 import { SecureRng } from "./dice.ts";
-import { HandleButton, HandleRoll } from "./handlers.ts";
+import { HandleButton, HandleRoll, HandleRollSettings } from "./handlers.ts";
+import { LoadSettings, type SettingsStore } from "./settings.ts";
 
 
-interface Env { DISCORD_PUBLIC_KEY: string; }
+interface Env { DISCORD_PUBLIC_KEY: string; SETTINGS: SettingsStore; }
 
 async function VerifyDiscordRequest(request: Request, env: Env): Promise<APIInteraction | null> {
   const signature = request.headers.get("x-signature-ed25519");
@@ -16,7 +17,7 @@ async function VerifyDiscordRequest(request: Request, env: Env): Promise<APIInte
   return isValid ? (JSON.parse(body) as APIInteraction) : null;
 }
 
-function Respond(interaction: APIInteraction): Response {
+async function Respond(interaction: APIInteraction, env: Env): Promise<Response> {
   if (interaction.type === InteractionType.Ping) return Response.json({ type: InteractionResponseType.Pong });
 
   if (
@@ -24,8 +25,19 @@ function Respond(interaction: APIInteraction): Response {
     && interaction.data.type === ApplicationCommandType.ChatInput
     && interaction.data.name === RollCommand.name
   ) {
+    const settings = await LoadSettings(env.SETTINGS, interaction.guild_id);
     return Response.json(
-      HandleRoll(interaction as APIChatInputApplicationCommandInteraction, SecureRng)
+      HandleRoll(interaction as APIChatInputApplicationCommandInteraction, SecureRng, settings)
+    );
+  }
+
+  if (
+    interaction.type === InteractionType.ApplicationCommand
+    && interaction.data.type === ApplicationCommandType.ChatInput
+    && interaction.data.name === RollSettingsCommand.name
+  ) {
+    return Response.json(
+      await HandleRollSettings(interaction as APIChatInputApplicationCommandInteraction, env.SETTINGS)
     );
   }
 
@@ -33,8 +45,9 @@ function Respond(interaction: APIInteraction): Response {
     interaction.type === InteractionType.MessageComponent
     && interaction.data.component_type === ComponentType.Button
   ) {
+    const settings = await LoadSettings(env.SETTINGS, interaction.guild_id);
     return Response.json(
-      HandleButton(interaction as APIMessageComponentButtonInteraction, SecureRng)
+      HandleButton(interaction as APIMessageComponentButtonInteraction, SecureRng, settings)
     );
   }
   return Response.json({ error: "Unknown Type" }, { status: 400 });
@@ -49,6 +62,6 @@ export default {
     const interaction = await VerifyDiscordRequest(request, env);
     if (!interaction) return new Response("Bad request signature.", { status: 401 });
 
-    return Respond(interaction);
+    return Respond(interaction, env);
   }
 };

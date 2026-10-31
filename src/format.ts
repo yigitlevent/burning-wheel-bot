@@ -6,32 +6,42 @@ import { EncodeState, MaxCustomIdLength, type Action, type RollState } from "./s
 
 
 const ShadeNames: Record<Shade, string> = { B: "Black", G: "Grey", W: "White" };
-const AnsiGreen = "\u001b[32m";
-const AnsiRed = "\u001b[31m";
-const AnsiReset = "\u001b[0m";
+const MaxContentLength = 2000;
 
-function ColoredDie(die: Die, shade: Shade): string {
-  const color = die.value >= Threshold(shade) ? AnsiGreen : AnsiRed;
-  return `${color}${die.exploded ? "6!" : die.value}${AnsiReset}`;
+function NumberFace(die: Die, shade: Shade): string {
+  const face = die.exploded ? "6!" : String(die.value);
+  return die.value >= Threshold(shade) ? `**${face}**` : face;
 }
 
-function AnsiBlock(text: string): string {
-  return `\`\`\`ansi\n${text}\n\`\`\``;
+function EmojiFace(die: Die, emojis: string[]): string {
+  return `${emojis[die.value - 1]}${die.exploded ? "!" : ""}`;
 }
 
-export function ResultLine(state: RollState, spends: string[] = []): string {
+function Faces(dice: Die[], shade: Shade, emojis?: string[]): string {
+  const sorted = dice.toSorted((a, b) => b.value - a.value);
+  return emojis
+    ? sorted.map(die => EmojiFace(die, emojis)).join(" ")
+    : sorted.map(die => NumberFace(die, shade)).join(", ");
+}
+
+function Content(state: RollState, spends: string[], faces: string): string {
   const { dice, ob, open, pool, shade } = state;
   const successes = CountSuccesses(dice, shade);
-  const faces = dice.toSorted((a, b) => b.value - a.value).map(die => ColoredDie(die, shade)).join(", ");
   const noun = successes === 1 ? "success" : "successes";
   const opposition = ob > 0 ? ` vs Ob ${ob}` : "";
   const line = `${pool}D ${ShadeNames[shade]}${open ? " open-ended" : ""}${opposition} → [${faces}] = ${successes} ${noun}`;
-  if (ob === 0) return AnsiBlock([line, ...spends].join("\n"));
+  if (ob === 0) return [line, ...spends].join("\n");
 
   const margin = successes - ob;
   const outcome = margin >= 0 ? `✔ PASS (+${margin})` : `✖ FAIL (${margin})`;
   const difficulty = TestDifficulty(pool, ob);
-  return AnsiBlock([`${outcome}${difficulty ? ` (${difficulty} test)` : ""}`, line, ...spends].join("\n"));
+  return [`${outcome}${difficulty ? ` (${difficulty} test)` : ""}`, line, ...spends].join("\n");
+}
+
+export function ResultLine(state: RollState, spends: string[] = [], emojis?: string[]): string {
+  const { dice, shade } = state;
+  const content = Content(state, spends, Faces(dice, shade, emojis));
+  return content.length > MaxContentLength ? Content(state, spends, Faces(dice, shade)) : content;
 }
 
 function Button(action: Action, label: string, disabled: boolean, state: RollState): APIButtonComponentWithCustomId {

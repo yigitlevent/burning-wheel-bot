@@ -1,18 +1,20 @@
 # Privacy Policy
 
-Last updated: 2026-10-30
+Last updated: 2026-10-31
 
 This policy explains how BWBot ("the bot"), a Discord dice-rolling bot, handles your data.
 
 ## What the bot receives
 
-When you use `/roll` or click one of its buttons, Discord sends the bot your Discord user ID, the options you chose and the bot's own roll message.
+When you use `/roll`, `/roll-settings` or one of the roll buttons, Discord sends the bot your Discord user ID, your server's ID, the options you chose and the bot's own roll message.
 
 ## What the bot stores
 
-The bot has no database and keeps nothing between requests.
+The bot stores server settings only: the server's ID and the dice emojis set with `/roll-settings`. It does not store user IDs or rolls.
 
 Your user ID and the roll are written into the buttons on the roll message, so that only you can spend on your roll. That data stays in the Discord message until the message is deleted.
+
+Server settings stay until someone runs `/roll-settings delete`. The bot is not told when it is removed from a server, so run that command before removing it.
 
 ## What the bot does not do
 
@@ -21,7 +23,7 @@ The bot does not read your other messages. It does not sell or share your data, 
 ## Other services
 
 - **Discord** delivers your commands and stores the messages. See [Discord's Privacy Policy](https://discord.com/privacy).
-- **Cloudflare** hosts the bot and processes each request. See [Cloudflare's Privacy Policy](https://www.cloudflare.com/privacypolicy/).
+- **Cloudflare** hosts the bot, processes each request and stores server settings. See [Cloudflare's Privacy Policy](https://www.cloudflare.com/privacypolicy/).
 
 ## Your choices
 

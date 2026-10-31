@@ -1,4 +1,5 @@
 import type { Die, Rng } from '../src/dice.ts';
+import type { SettingsStore } from '../src/settings.ts';
 
 /** Returns the queued values in order and throws if the code rolls more than expected. */
 export function queuedRng(...values: number[]): Rng {
@@ -14,7 +15,17 @@ export function dice(...values: number[]): Die[] {
   return values.map((value) => ({ value, exploded: false }));
 }
 
-/** Removes the code fence and colour codes, leaving the text people read. */
+/** Removes the bold markers, leaving the text people read. */
 export function plain(content: string): string {
-  return content.replace('```ansi\n', '').replace('\n```', '').replace(/\u001b\[\d+m/g, '');
+  return content.replaceAll('**', '');
+}
+
+export function memoryStore(): SettingsStore & { values: Map<string, string> } {
+  const values = new Map<string, string>();
+  return {
+    values,
+    get: (key) => Promise.resolve(values.get(key) ?? null),
+    put: (key, value) => Promise.resolve(void values.set(key, value)),
+    delete: (key) => Promise.resolve(void values.delete(key)),
+  };
 }

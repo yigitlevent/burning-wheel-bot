@@ -19,9 +19,9 @@ A Discord dice bot for Burning Wheel Gold Revised. It rolls a dice pool, counts 
 
 Example result:
 
-![A roll in Discord showing the result, coloured dice and spend buttons](screenshot.png)
+![A roll in Discord showing the result, dice and spend buttons](screenshot.png)
 
-Successful dice are green and failed dice are red on desktop. An exploded 6 shows as `6!`. The test label comes from the book's advancement table, which stops at 18D, so larger pools have no label.
+Successful dice are bold. An exploded 6 shows as `6!`. The test label comes from the book's advancement table, which stops at 18D, so larger pools have no label.
 
 ### Spending after the roll
 
@@ -34,6 +34,17 @@ Each button works once per roll, and only for the person who rolled.
 | Call-on | Rerolls one failed die |
 
 Rerolled 6s explode if the roll started open-ended, or after Fate has opened it.
+
+### Server settings
+
+These commands need the Manage Server permission by default. You can change who can use them in **Server Settings > Integrations**.
+
+| Command | Effect |
+| --- | --- |
+| `/roll-settings dice-emojis emojis:<six emojis>` | Shows dice as these emojis, in order for faces 1 to 6 |
+| `/roll-settings delete` | Deletes this server's settings, so rolls show numbers again |
+
+Use emojis from the same server, separated by spaces. Emojis can't show which dice succeeded, so draw that into the art if you want it. Changes can take up to a minute to apply. Very long rolls fall back to numbers to fit Discord's message limit.
 
 ## Host your own
 
@@ -62,7 +73,7 @@ Your copy needs its own Discord app and its own Terms of Service and Privacy Pol
 | `npm run preview -- 8 4 W true` | Prints a sample roll: dice, Ob, shade, open-ended |
 | `npm run dev` | Runs the Worker locally |
 | `npm run deploy` | Deploys to Cloudflare |
-| `npm run register` | Registers `/roll` with Discord |
+| `npm run register` | Registers the slash commands with Discord |
 
 ## License
 
