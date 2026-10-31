@@ -1,9 +1,9 @@
 import { ApplicationCommandType, ComponentType, InteractionResponseType, InteractionType, type APIChatInputApplicationCommandInteraction, type APIInteraction, type APIMessageComponentButtonInteraction } from "discord-api-types/v10";
 import { verifyKey } from "discord-interactions";
 
-import { RollCommand, RollSettingsCommand } from "./commands.ts";
+import { DieOfFateCommand, RollCommand, RollSettingsCommand } from "./commands.ts";
 import { SecureRng } from "./dice.ts";
-import { HandleButton, HandleRoll, HandleRollSettings } from "./handlers.ts";
+import { HandleButton, HandleDieOfFate, HandleRoll, HandleRollSettings } from "./handlers.ts";
 import { LoadSettings, type SettingsStore } from "./settings.ts";
 
 
@@ -29,6 +29,15 @@ async function Respond(interaction: APIInteraction, env: Env): Promise<Response>
     return Response.json(
       HandleRoll(interaction as APIChatInputApplicationCommandInteraction, SecureRng, settings)
     );
+  }
+
+  if (
+    interaction.type === InteractionType.ApplicationCommand
+    && interaction.data.type === ApplicationCommandType.ChatInput
+    && interaction.data.name === DieOfFateCommand.name
+  ) {
+    const settings = await LoadSettings(env.SETTINGS, interaction.guild_id);
+    return Response.json(HandleDieOfFate(SecureRng, settings));
   }
 
   if (

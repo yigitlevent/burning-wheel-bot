@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionType, InteractionResponseType, MessageFlags, type APIApplicationCommandInteractionDataOption, type APIChatInputApplicationCommandInteraction, type APIInteractionResponse, type APIMessageComponentButtonInteraction, type InteractionType } from "discord-api-types/v10";
 
 import { Explode, RerollFailures, RerollOne, RollPool, type Rng, type Shade } from "./dice.ts";
-import { Buttons, ResultLine } from "./format.ts";
+import { Buttons, DieOfFateLine, ResultLine } from "./format.ts";
 import { DeleteSettings, ParseDiceEmojis, SaveSettings, type GuildSettings, type SettingsStore } from "./settings.ts";
 import { DecodeState, type Action, type RollState } from "./state.ts";
 
@@ -56,6 +56,16 @@ export function HandleRoll(interaction: APIChatInputApplicationCommandInteractio
     data: {
       content: ResultLine(state, [], settings.diceEmojis),
       components: Buttons(state),
+      allowed_mentions: { parse: [] }
+    }
+  };
+}
+
+export function HandleDieOfFate(rng: Rng, settings: GuildSettings = {}): APIInteractionResponse {
+  return {
+    type: InteractionResponseType.ChannelMessageWithSource,
+    data: {
+      content: DieOfFateLine(rng(), settings.diceEmojis),
       allowed_mentions: { parse: [] }
     }
   };

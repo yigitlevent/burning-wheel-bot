@@ -75,6 +75,20 @@ describe('server', () => {
     expect(body.data.content).toContain('3D Black');
   });
 
+  it('routes /roll-dof to one die', async () => {
+    const request = await signedRequest(
+      JSON.stringify({
+        type: InteractionType.ApplicationCommand,
+        member: { user: { id: '111' } },
+        data: { type: 1, name: 'roll-dof' },
+      }),
+    );
+    const body = (await (await server.fetch(request, env)).json()) as {
+      data: { content: string };
+    };
+    expect(body.data.content).toMatch(/^Die of Fate → \[[1-6]\]$/);
+  });
+
   it('routes /roll-settings and uses the saved emojis on the next /roll', async () => {
     const emojis = '1️⃣ 2️⃣ 3️⃣ 4️⃣ 5️⃣ 6️⃣';
     const settings = await signedRequest(

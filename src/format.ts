@@ -57,6 +57,10 @@ export function ResultLine(state: RollState, spends: string[] = [], emojis?: str
   return content.length > MaxContentLength ? Content(state, spends, Faces(dice, shade)) : content;
 }
 
+export function DieOfFateLine(value: number, emojis?: string[]): string {
+  return `Die of Fate → [${emojis?.[value - 1] ?? value}]`;
+}
+
 function Button(action: Action, label: string, disabled: boolean, state: RollState): APIButtonComponentWithCustomId {
   return {
     type: ComponentType.Button,

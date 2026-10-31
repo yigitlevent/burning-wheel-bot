@@ -39,6 +39,10 @@ Each button works once per roll, and only for the person who rolled.
 
 Rerolled 6s explode if the roll started open-ended, or after Fate has opened it.
 
+### Die of Fate
+
+`/roll-dof` rolls one die for the Die of Fate and shows the face, using the server's dice emojis if it has them.
+
 ### Server settings
 
 These commands need the Manage Server permission by default. You can change who can use them in **Server Settings > Integrations**.

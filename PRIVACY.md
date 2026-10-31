@@ -6,7 +6,7 @@ This policy explains how BWBot ("the bot"), a Discord dice-rolling bot, handles 
 
 ## What the bot receives
 
-When you use `/roll`, `/roll-settings` or one of the roll buttons, Discord sends the bot your Discord user ID, your server's ID, the options you chose and the bot's own roll message.
+When you use `/roll`, `/roll-dof`, `/roll-settings` or one of the roll buttons, Discord sends the bot your Discord user ID, your server's ID, the options you chose and the bot's own roll message.
 
 ## What the bot stores
 

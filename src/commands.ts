@@ -51,6 +51,12 @@ export const RollCommand = {
   ]
 } satisfies RESTPutAPIApplicationCommandsJSONBody[number];
 
+export const DieOfFateCommand = {
+  name: "roll-dof",
+  description: "Roll the Die of Fate",
+  type: ApplicationCommandType.ChatInput
+} satisfies RESTPutAPIApplicationCommandsJSONBody[number];
+
 export const RollSettingsCommand = {
   name: "roll-settings",
   description: "Change how rolls look on this server",

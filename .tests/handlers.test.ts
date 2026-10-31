@@ -7,7 +7,7 @@ import {
   type APIMessageComponentButtonInteraction,
 } from 'discord-api-types/v10';
 import { describe, expect, it } from 'vitest';
-import { HandleButton, HandleRoll, HandleRollSettings } from '../src/handlers.ts';
+import { HandleButton, HandleDieOfFate, HandleRoll, HandleRollSettings } from '../src/handlers.ts';
 import { LoadSettings, SaveSettings } from '../src/settings.ts';
 import { dice, memoryStore, plain, queuedRng } from './test-helpers.ts';
 import { DecodeState, EncodeState, type Action, type RollState } from '../src/state.ts';
@@ -150,6 +150,19 @@ describe('handleRoll', () => {
       { diceEmojis: EMOJIS },
     );
     expect(contentOf(response)).toBe('2D Black → [4️⃣ 1️⃣] = 1 success');
+  });
+});
+
+describe('handleDieOfFate', () => {
+  it('rolls one die and shows it as a number', () => {
+    const response = HandleDieOfFate(queuedRng(5));
+    expect(response.type).toBe(InteractionResponseType.ChannelMessageWithSource);
+    expect(rawContentOf(response)).toBe('Die of Fate → [5]');
+  });
+
+  it('shows the server emoji for the face', () => {
+    const response = HandleDieOfFate(queuedRng(5), { diceEmojis: EMOJIS });
+    expect(rawContentOf(response)).toBe('Die of Fate → [5️⃣]');
   });
 });
 
