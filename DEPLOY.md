@@ -51,6 +51,8 @@ Press `Ctrl+R` in Discord if `/roll` doesn't appear yet.
 | `/roll dice:5` | Successes only, with no pass or fail |
 | `/roll dice:10 ob:3 shade:grey open:true`, then click Fate | Button says "Fate: reroll 1 failure", and one failure rerolls |
 | `/roll dice:10 ob:3 shade:grey` until a 6 shows, click Fate, then Deeds | 6s become `6!`, new dice are added, and any 6 from the reroll also explodes |
+| `/roll dice:5 ob:3 beginners-luck:true`, then `ob:4` | Ob 6 counts toward learning the skill, and Ob 8 counts toward the root stat |
+| `/roll dice:5 ob:3 beginners-luck:true disadvantage:1`, then click a button | Ob 7 counts toward the root stat, and stays that way after the spend |
 | Click a button from a second account | Only that account sees "Only the roller can spend on this roll." |
 | DM the bot and run `/roll dice:5` | Roll and buttons work |
 | `/roll-settings dice-emojis` with six of the server's emojis, wait a minute, then `/roll dice:5` | Dice show as emojis, and stay emojis after a spend |

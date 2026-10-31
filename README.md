@@ -16,6 +16,10 @@ A Discord dice bot for Burning Wheel Gold Revised. It rolls a dice pool, counts 
 | `ob` | No | 0-30. Ob 0 just reports successes | 0 |
 | `shade` | No | Black (4+), Grey (3+), White (2+) | Black |
 | `open` | No | `true` makes 6s explode | `false` |
+| `beginners-luck` | No | `true` doubles the Ob and shows what the test counts toward | `false` |
+| `disadvantage` | No | 0-30, added to the Ob and not doubled by Beginner's Luck | 0 |
+
+On a Beginner's Luck roll, enter the Ob before doubling. The test is judged on the Ob before doubling plus any disadvantage: Routine counts toward learning the skill, and Difficult or Challenging counts toward the root stat.
 
 Example result:
 

@@ -41,8 +41,10 @@ export function HandleRoll(interaction: APIChatInputApplicationCommandInteractio
     userId: ActorId(interaction),
     shade: (Option(options, "shade") as Shade | undefined) ?? "B",
     ob: (Option(options, "ob") as number | undefined) ?? 0,
+    disadvantage: (Option(options, "disadvantage") as number | undefined) ?? 0,
     pool,
     open,
+    beginner: (Option(options, "beginners-luck") as boolean | undefined) ?? false,
     fate: false,
     deeds: false,
     callon: false,
@@ -108,19 +110,28 @@ export function HandleButton(interaction: APIMessageComponentButtonInteraction, 
   };
 }
 
+async function ConfirmWrite(write: Promise<void>, message: string): Promise<APIInteractionResponse> {
+  try {
+    await write;
+    return Ephemeral(message);
+  }
+  catch (error) {
+    console.error("Could not write settings", error);
+    return Ephemeral("Settings could not be saved. Try again in a minute.");
+  }
+}
+
 export async function HandleRollSettings(interaction: APIChatInputApplicationCommandInteraction, store: SettingsStore): Promise<APIInteractionResponse> {
   const guildId = interaction.guild_id;
   const subcommand = interaction.data.options?.[0];
   if (!guildId || subcommand?.type !== ApplicationCommandOptionType.Subcommand) return Ephemeral("This command only works in a server.");
 
   if (subcommand.name === "delete") {
-    await DeleteSettings(store, guildId);
-    return Ephemeral("Settings deleted. Rolls go back to numbers within a minute.");
+    return ConfirmWrite(DeleteSettings(store, guildId), "Settings deleted. Rolls go back to numbers within a minute.");
   }
 
   const diceEmojis = ParseDiceEmojis(String(Option(subcommand.options ?? [], "emojis")));
   if (!diceEmojis) return Ephemeral("Send exactly six emojis, for faces 1 to 6, separated by spaces.");
 
-  await SaveSettings(store, guildId, { diceEmojis });
-  return Ephemeral(`Dice emojis saved: ${diceEmojis.join(" ")}\nRolls start using them within a minute.`);
+  return ConfirmWrite(SaveSettings(store, guildId, { diceEmojis }), `Dice emojis saved: ${diceEmojis.join(" ")}\nRolls start using them within a minute.`);
 }

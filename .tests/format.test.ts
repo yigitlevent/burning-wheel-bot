@@ -7,8 +7,10 @@ const state: RollState = {
   userId: '1',
   shade: 'G',
   ob: 3,
+  disadvantage: 0,
   pool: 5,
   open: false,
+  beginner: false,
   fate: false,
   deeds: false,
   callon: false,
@@ -36,6 +38,46 @@ describe('resultLine', () => {
     const line = plain(ResultLine({ ...state, open: true, dice: [{ value: 6, exploded: true }, ...dice(1)] }));
     expect(line).toContain('5D Grey open-ended');
     expect(line).toContain('[6!, 1] = 1 success');
+  });
+});
+
+describe("Beginner's Luck", () => {
+  const beginner = { ...state, beginner: true };
+
+  it('doubles the Ob and counts a routine base Ob toward the skill', () => {
+    expect(plain(ResultLine(beginner))).toBe(
+      "✖ FAIL (-3) (Routine test, counts toward learning the skill)\n5D Grey Beginner's Luck vs Ob 6 → [6, 4, 3, 2, 1] = 3 successes",
+    );
+  });
+
+  it('counts a difficult or challenging base Ob toward the root stat', () => {
+    expect(ResultLine({ ...beginner, ob: 4 })).toContain('(Difficult test, counts toward the root stat)');
+    expect(ResultLine({ ...beginner, ob: 6 })).toContain('(Challenging test, counts toward the root stat)');
+  });
+
+  it('adds disadvantages to the base Ob but does not double them', () => {
+    const line = ResultLine({ ...beginner, disadvantage: 1 });
+    expect(line).toContain('vs Ob 7');
+    expect(line).toContain('(Difficult test, counts toward the root stat)');
+  });
+
+  it('leaves Ob 1 on one die to the player', () => {
+    const line = ResultLine({ ...beginner, pool: 1, ob: 1, dice: dice(4) });
+    expect(line).toContain('(Routine or Difficult test, counts toward the skill or the root stat)');
+  });
+
+  it('has no note past the advancement table', () => {
+    expect(ResultLine({ ...beginner, pool: 19 })).not.toContain('counts toward');
+  });
+
+  it('stays a graduated test at Ob 0', () => {
+    expect(plain(ResultLine({ ...beginner, ob: 0 }))).toBe(
+      "5D Grey Beginner's Luck → [6, 4, 3, 2, 1] = 3 successes",
+    );
+  });
+
+  it('adds a disadvantage without doubling on a normal roll', () => {
+    expect(ResultLine({ ...state, disadvantage: 2 })).toContain('vs Ob 5');
   });
 });
 

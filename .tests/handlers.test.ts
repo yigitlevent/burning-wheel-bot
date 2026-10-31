@@ -65,8 +65,10 @@ const closed: RollState = {
   userId: ROLLER,
   shade: 'B',
   ob: 2,
+  disadvantage: 0,
   pool: 3,
   open: false,
+  beginner: false,
   fate: false,
   deeds: false,
   callon: false,
@@ -106,6 +108,29 @@ describe('handleRoll', () => {
     expect(contentOf(response)).toBe(
       '✔ PASS (+0) (Difficult test)\n2D White open-ended vs Ob 2 → [6!, 2, 1] = 2 successes',
     );
+  });
+
+  it("keeps Beginner's Luck through a spend", () => {
+    const roll = HandleRoll(
+      rollInteraction([
+        { name: 'dice', type: ApplicationCommandOptionType.Integer, value: 2 },
+        { name: 'ob', type: ApplicationCommandOptionType.Integer, value: 1 },
+        { name: 'disadvantage', type: ApplicationCommandOptionType.Integer, value: 1 },
+        { name: 'beginners-luck', type: ApplicationCommandOptionType.Boolean, value: true },
+      ]),
+      queuedRng(6, 1),
+    );
+    expect(contentOf(roll)).toContain("2D Black Beginner's Luck vs Ob 3");
+
+    const [customId = ''] = customIds(roll);
+    const spend = {
+      ...inGuild(ROLLER),
+      data: { custom_id: customId },
+      message: { content: rawContentOf(roll) },
+    } as unknown as APIMessageComponentButtonInteraction;
+    const response = HandleButton(spend, queuedRng(5));
+    expect(contentOf(response)).toContain("2D Black Beginner's Luck vs Ob 3");
+    expect(contentOf(response)).toContain('(Difficult test, counts toward the root stat)');
   });
 
   it('works in a DM', () => {
@@ -163,6 +188,19 @@ describe('handleRollSettings', () => {
     const response = await HandleRollSettings(settingsInteraction('dice-emojis', '1️⃣ 2️⃣'), store);
     expect(isEphemeral(response)).toBe(true);
     expect(store.values.size).toBe(0);
+  });
+
+  it('reports a failed write instead of throwing', async () => {
+    const down = () => Promise.reject(new Error('down'));
+    const store = { ...memoryStore(), put: down, delete: down };
+    for (const interaction of [
+      settingsInteraction('dice-emojis', EMOJIS.join(' ')),
+      settingsInteraction('delete'),
+    ]) {
+      const response = await HandleRollSettings(interaction, store);
+      expect(isEphemeral(response)).toBe(true);
+      expect(contentOf(response)).toBe('Settings could not be saved. Try again in a minute.');
+    }
   });
 
   it('deletes the server settings', async () => {

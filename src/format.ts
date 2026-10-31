@@ -2,11 +2,17 @@ import { ButtonStyle, ComponentType, type APIActionRowComponent, type APIButtonC
 
 import { TestDifficulty } from "./advancement.ts";
 import { CountSuccesses, FailedIndexes, Threshold, type Die, type Shade } from "./dice.ts";
-import { EncodeState, MaxCustomIdLength, type Action, type RollState } from "./state.ts";
+import { AdvancementOb, EncodeState, FinalOb, MaxCustomIdLength, type Action, type RollState } from "./state.ts";
 
 
 const ShadeNames: Record<Shade, string> = { B: "Black", G: "Grey", W: "White" };
 const MaxContentLength = 2000;
+const BeginnersLuckNotes: Record<TestDifficulty, string> = {
+  "Routine": "counts toward learning the skill",
+  "Difficult": "counts toward the root stat",
+  "Challenging": "counts toward the root stat",
+  "Routine or Difficult": "counts toward the skill or the root stat"
+};
 
 function NumberFace(die: Die, shade: Shade): string {
   const face = die.exploded ? "6!" : String(die.value);
@@ -25,17 +31,24 @@ function Faces(dice: Die[], shade: Shade, emojis?: string[]): string {
 }
 
 function Content(state: RollState, spends: string[], faces: string): string {
-  const { dice, ob, open, pool, shade } = state;
+  const { beginner, dice, open, pool, shade } = state;
+  const ob = FinalOb(state);
   const successes = CountSuccesses(dice, shade);
   const noun = successes === 1 ? "success" : "successes";
   const opposition = ob > 0 ? ` vs Ob ${ob}` : "";
-  const line = `${pool}D ${ShadeNames[shade]}${open ? " open-ended" : ""}${opposition} → [${faces}] = ${successes} ${noun}`;
+  const line = `${pool}D ${ShadeNames[shade]}${open ? " open-ended" : ""}${beginner ? " Beginner's Luck" : ""}${opposition} → [${faces}] = ${successes} ${noun}`;
   if (ob === 0) return [line, ...spends].join("\n");
 
   const margin = successes - ob;
   const outcome = margin >= 0 ? `✔ PASS (+${margin})` : `✖ FAIL (${margin})`;
-  const difficulty = TestDifficulty(pool, ob);
-  return [`${outcome}${difficulty ? ` (${difficulty} test)` : ""}`, line, ...spends].join("\n");
+  return [`${outcome}${DifficultyLabel(state)}`, line, ...spends].join("\n");
+}
+
+function DifficultyLabel(state: RollState): string {
+  const difficulty = TestDifficulty(state.pool, AdvancementOb(state));
+  if (!difficulty) return "";
+
+  return state.beginner ? ` (${difficulty} test, ${BeginnersLuckNotes[difficulty]})` : ` (${difficulty} test)`;
 }
 
 export function ResultLine(state: RollState, spends: string[] = [], emojis?: string[]): string {

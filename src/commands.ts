@@ -35,6 +35,18 @@ export const RollCommand = {
       name: "open",
       description: "Open-ended: 6s explode",
       type: ApplicationCommandOptionType.Boolean
+    },
+    {
+      name: "beginners-luck",
+      description: "Beginner's Luck: doubles the Ob and shows what the test counts toward",
+      type: ApplicationCommandOptionType.Boolean
+    },
+    {
+      name: "disadvantage",
+      description: "Added to the Ob. Not doubled by Beginner's Luck",
+      type: ApplicationCommandOptionType.Integer,
+      min_value: 0,
+      max_value: 30
     }
   ]
 } satisfies RESTPutAPIApplicationCommandsJSONBody[number];

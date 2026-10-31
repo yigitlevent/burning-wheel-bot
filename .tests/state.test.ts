@@ -6,8 +6,10 @@ const state: RollState = {
   userId: '123456789012345678',
   shade: 'G',
   ob: 3,
+  disadvantage: 0,
   pool: 5,
   open: true,
+  beginner: false,
   fate: false,
   deeds: true,
   callon: false,
@@ -23,6 +25,12 @@ describe('custom_id state', () => {
     for (const action of ['fate', 'deeds', 'callon'] as const) {
       expect(DecodeState(EncodeState(action, state))).toEqual({ action, state });
     }
+  });
+
+  it('round-trips Beginner\'s Luck with a disadvantage', () => {
+    const beginner = { ...state, beginner: true, disadvantage: 2 };
+    expect(EncodeState('fate', beginner)).toBe('fate:123456789012345678:G:3+2:5:15:x6321');
+    expect(DecodeState(EncodeState('fate', beginner))).toEqual({ action: 'fate', state: beginner });
   });
 
   it('rejects malformed ids', () => {
